@@ -1,0 +1,69 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">H</span><div><b>HOMESTAY</b><small>MANAGEMENT</small></div></div>
+    <p class="menu-label">TỔNG QUAN</p>
+    <button [class.selected]="active==='dashboard'" (click)="setPage('dashboard')">▦ <span>Dashboard</span></button>
+    <p class="menu-label">NGHIỆP VỤ</p>
+    <button [class.selected]="active==='customers'" (click)="setPage('customers')">♙ <span>Khách hàng</span></button>
+    <button [class.selected]="active==='rooms'" (click)="setPage('rooms')">▤ <span>Quản lý phòng</span></button>
+    <button [class.selected]="active==='roomTypes'" (click)="setPage('roomTypes')">▦ <span>Loại phòng</span></button>
+    <button [class.selected]="active==='bookings'" (click)="setPage('bookings')">▣ <span>Đặt phòng</span></button>
+    <button [class.selected]="active==='services'" (click)="setPage('services')">✧ <span>Dịch vụ</span></button>
+    <button [class.selected]="active==='vouchers'" (click)="setPage('vouchers')">％ <span>Khuyến mãi</span></button>
+    <div class="sidebar-bottom"><span class="avatar">HC</span><div><b>Quản trị viên</b><small>Administrator</small></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><span class="eyebrow">HỆ THỐNG QUẢN LÝ</span><h1>{{ active==='dashboard' ? 'Tổng quan' : active==='roomTypes' ? 'Quản lý loại phòng' : active==='customers' ? 'Quản lý khách hàng' : active==='rooms' ? 'Quản lý phòng' : active==='bookings' ? 'Quản lý đặt phòng' : active==='services' ? 'Quản lý dịch vụ' : 'Quản lý khuyến mãi' }}</h1></div>
+      <div class="top-user"><span class="online"></span> Hệ thống vận hành <span class="avatar small">HC</span></div>
+    </header>
+
+    <div class="content">
+      <div class="alert error" *ngIf="error">{{ error }}</div>
+      <div class="alert success" *ngIf="message">{{ message }}</div>
+
+      <ng-container *ngIf="active==='dashboard'">
+        <div class="welcome"><div><span class="eyebrow light">HOMESTAY OVERVIEW</span><h2>Chào mừng trở lại!</h2><p>Quản lý hoạt động lưu trú của bạn tại một nơi.</p></div><div class="welcome-icon">⌂</div></div>
+        <div class="stats">
+          <article class="stat"><div class="stat-icon purple">▤</div><span>Tổng khách hàng</span><strong>{{ customers.length }}</strong><small>Hồ sơ khách lưu trú</small></article>
+          <article class="stat"><div class="stat-icon blue">▦</div><span>Tổng số phòng</span><strong>{{ rooms.length }}</strong><small>Phòng trong hệ thống</small></article>
+          <article class="stat"><div class="stat-icon green">▣</div><span>Đặt phòng</span><strong>{{ bookings.length }}</strong><small>Giao dịch đặt phòng</small></article>
+          <article class="stat"><div class="stat-icon orange">✧</div><span>Dịch vụ</span><strong>{{ services.length }}</strong><small>Dịch vụ đang quản lý</small></article>
+        </div>
+        <section class="panel"><div class="panel-heading"><div><h3>Truy cập nhanh</h3><p>Chọn phân hệ để quản lý dữ liệu</p></div></div><div class="quick-links"><button (click)="setPage('customers')">♙ <span>Khách hàng</span><b>→</b></button><button (click)="setPage('rooms')">▤ <span>Phòng</span><b>→</b></button><button (click)="setPage('bookings')">▣ <span>Đặt phòng</span><b>→</b></button><button (click)="setPage('services')">✧ <span>Dịch vụ</span><b>→</b></button></div></section>
+      </ng-container>
+
+      <section class="panel" *ngIf="active==='customers'">
+        <div class="panel-heading"><div><h3>Danh sách khách hàng</h3><p>Quản lý hồ sơ, liên hệ và hạng thành viên</p></div><button class="primary" (click)="openCreateCustomer()">＋ Thêm khách hàng</button></div>
+        <div class="toolbar"><input [(ngModel)]="search" placeholder="Tìm theo tên, CCCD hoặc số điện thoại..." /><span>{{ filteredCustomers.length }} khách hàng</span></div>
+        <div class="table-wrap"><table><thead><tr><th>KHÁCH HÀNG</th><th>CCCD / HỘ CHIẾU</th><th>ĐIỆN THOẠI</th><th>HẠNG THÀNH VIÊN</th><th>ĐIỂM</th><th>THAO TÁC</th></tr></thead>
+          <tbody><tr *ngFor="let c of filteredCustomers; trackBy: trackById"><td><b>{{ c.fullName }}</b><small>{{ c.email || 'Chưa có email' }}</small></td><td>{{ c.identityNumber || '—' }}</td><td>{{ c.phone || '—' }}</td><td><span class="pill">{{ c.membershipLevel || 'STANDARD' }}</span></td><td>{{ c.loyaltyPoints || 0 }}</td><td class="actions"><button class="text-button" (click)="openEditCustomer(c)">Sửa</button><button class="text-button danger-text" (click)="deleteCustomer(c)">Ngừng</button></td></tr>
+          <tr *ngIf="!loading && filteredCustomers.length===0"><td colspan="6" class="empty">Chưa có dữ liệu khách hàng.</td></tr></tbody></table></div>
+      </section>
+
+      <section class="panel" *ngIf="active==='rooms'"><div class="panel-heading"><div><h3>Danh sách phòng</h3><p>Thông tin phòng và trạng thái hiện tại</p></div><button class="primary" (click)="loadCurrent()">↻ Làm mới</button></div><div class="table-wrap"><table><thead><tr><th>SỐ PHÒNG</th><th>LOẠI PHÒNG</th><th>TẦNG</th><th>GIÁ / ĐÊM</th><th>TRẠNG THÁI</th></tr></thead><tbody><tr *ngFor="let r of rooms"><td><b>{{ r.roomNumber }}</b></td><td>{{ r.roomType?.name || '—' }}</td><td>{{ r.floorNumber }}</td><td>{{ r.pricePerNight | number }} đ</td><td><span class="pill">{{ r.status }}</span></td></tr><tr *ngIf="!rooms.length"><td colspan="5" class="empty">Chưa có dữ liệu phòng.</td></tr></tbody></table></div></section>
+
+      <section class="panel" *ngIf="active==='roomTypes'"><div class="panel-heading"><div><h3>Danh sách loại phòng</h3><p>Hạng phòng, sức chứa và giá cơ bản</p></div><button class="primary" (click)="loadCurrent()">↻ Làm mới</button></div><div class="table-wrap"><table><thead><tr><th>MÃ LOẠI</th><th>TÊN LOẠI</th><th>SỨC CHỨA</th><th>DIỆN TÍCH</th><th>GIÁ CƠ BẢN</th></tr></thead><tbody><tr *ngFor="let r of roomTypes"><td>{{ r.code }}</td><td><b>{{ r.name }}</b></td><td>{{ r.capacity }} người</td><td>{{ r.areaSqm }} m²</td><td>{{ r.basePrice | number }} đ</td></tr><tr *ngIf="!roomTypes.length"><td colspan="5" class="empty">Chưa có dữ liệu loại phòng.</td></tr></tbody></table></div></section>
+
+      <section class="panel" *ngIf="active==='bookings'"><div class="panel-heading"><div><h3>Danh sách đặt phòng</h3><p>Theo dõi giao dịch đặt phòng</p></div><button class="primary" (click)="loadCurrent()">↻ Làm mới</button></div><div class="table-wrap"><table><thead><tr><th>MÃ ĐẶT PHÒNG</th><th>KHÁCH HÀNG</th><th>PHÒNG</th><th>NHẬN PHÒNG</th><th>TRẢ PHÒNG</th><th>TRẠNG THÁI</th></tr></thead><tbody><tr *ngFor="let b of bookings"><td><b>{{ b.bookingCode }}</b></td><td>{{ b.customer?.fullName }}</td><td>{{ b.room?.roomNumber }}</td><td>{{ b.checkInDate }}</td><td>{{ b.checkOutDate }}</td><td><span class="pill">{{ b.status }}</span></td></tr><tr *ngIf="!bookings.length"><td colspan="6" class="empty">Chưa có dữ liệu đặt phòng.</td></tr></tbody></table></div></section>
+
+      <section class="panel" *ngIf="active==='services'"><div class="panel-heading"><div><h3>Danh sách dịch vụ</h3><p>Danh mục dịch vụ của homestay</p></div><button class="primary" (click)="loadCurrent()">↻ Làm mới</button></div><div class="table-wrap"><table><thead><tr><th>MÃ</th><th>TÊN DỊCH VỤ</th><th>NHÓM</th><th>ĐƠN VỊ</th><th>GIÁ</th><th>TRẠNG THÁI</th></tr></thead><tbody><tr *ngFor="let s of services"><td>{{ s.code }}</td><td><b>{{ s.name }}</b></td><td>{{ s.category }}</td><td>{{ s.unit }}</td><td>{{ s.price | number }} đ</td><td><span class="pill">{{ s.active ? 'Hoạt động' : 'Ngừng' }}</span></td></tr><tr *ngIf="!services.length"><td colspan="6" class="empty">Chưa có dữ liệu dịch vụ.</td></tr></tbody></table></div></section>
+
+      <section class="panel" *ngIf="active==='vouchers'"><div class="panel-heading"><div><h3>Danh sách khuyến mãi</h3><p>Mã ưu đãi và thời hạn sử dụng</p></div><button class="primary" (click)="loadCurrent()">↻ Làm mới</button></div><div class="table-wrap"><table><thead><tr><th>MÃ KHUYẾN MÃI</th><th>TÊN</th><th>LOẠI</th><th>GIÁ TRỊ</th><th>THỜI HẠN</th><th>ĐÃ DÙNG</th></tr></thead><tbody><tr *ngFor="let v of vouchers"><td><b>{{ v.code }}</b></td><td>{{ v.name }}</td><td>{{ v.discountType }}</td><td>{{ v.discountValue | number }}</td><td>{{ v.startDate }} – {{ v.endDate }}</td><td>{{ v.usedCount }} / {{ v.usageLimit }}</td></tr><tr *ngIf="!vouchers.length"><td colspan="6" class="empty">Chưa có dữ liệu khuyến mãi.</td></tr></tbody></table></div></section>
+
+      <div class="loading" *ngIf="loading">Đang tải dữ liệu…</div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" *ngIf="showCustomerForm" (click)="showCustomerForm=false">
+  <section class="modal" (click)="$event.stopPropagation()"><div class="panel-heading"><div><h3>{{ editingId ? 'Cập nhật khách hàng' : 'Thêm khách hàng' }}</h3><p>Nhập thông tin hồ sơ khách lưu trú</p></div><button class="close" (click)="showCustomerForm=false">×</button></div>
+    <form (ngSubmit)="saveCustomer()"><label>Họ và tên *</label><input name="fullName" [(ngModel)]="customer.fullName" required />
+      <label>CCCD / Hộ chiếu</label><input name="identityNumber" [(ngModel)]="customer.identityNumber" />
+      <div class="form-grid"><div><label>Số điện thoại</label><input name="phone" [(ngModel)]="customer.phone" /></div><div><label>Email</label><input name="email" type="email" [(ngModel)]="customer.email" /></div></div>
+      <div class="form-grid"><div><label>Hạng thành viên</label><select name="membershipLevel" [(ngModel)]="customer.membershipLevel"><option value="STANDARD">Thường</option><option value="SILVER">Bạc</option><option value="GOLD">Vàng</option><option value="DIAMOND">Kim cương</option></select></div><div><label>Điểm tích lũy</label><input name="loyaltyPoints" type="number" min="0" [(ngModel)]="customer.loyaltyPoints" /></div></div>
+      <div class="modal-actions"><button type="button" class="secondary" (click)="showCustomerForm=false">Hủy</button><button class="primary" type="submit">Lưu thông tin</button></div>
+    </form>
+  </section>
+</div>
